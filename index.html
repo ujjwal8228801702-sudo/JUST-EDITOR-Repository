@@ -46,29 +46,29 @@ musicList.innerHTML=musicItems.map((m,i)=>'<div class="musicitem"><span>🎵</sp
 musicList.querySelectorAll('[data-online-play]').forEach(b=>b.onclick=()=>playOnlineMusic(+b.dataset.onlinePlay));
 musicList.querySelectorAll('[data-online-add]').forEach(b=>b.onclick=()=>selectOnlineMusic(+b.dataset.onlineAdd));}
 async function searchOnlineMusic(term=''){
- const btn=$('loadMusic');btn.disabled=true;$('musicStatus').textContent='Searching licensed full-length tracks…';musicList.innerHTML='<div class="musicempty">Loading online music…</div>';
+ const btn=$('loadMusic');btn.disabled=true;$('musicStatus').textContent='Searching online music catalogue…';musicList.innerHTML='<div class="musicempty">Searching full tracks…</div>';
  try{
-  const clean=String(term||'').trim().replace(/[\\\\/:()[\\]{}"]/g,' ').replace(/\\s+/g,' ').slice(0,60);
-  const makeQuery=(s)=>s?'mediatype:audio AND (title:('+s+') OR creator:('+s+'))':'mediatype:audio';
-  async function searchArchive(q){
-   const url='https://archive.org/advancedsearch.php?q='+encodeURIComponent(q)+'&fl[]=identifier&fl[]=title&fl[]=creator&sort[]=downloads+desc&rows=45&page=1&output=json';
-   const res=await fetch(url);if(!res.ok)throw Error('Internet Archive search unavailable');const data=await res.json();return data.response?.docs||[];
-  }
-  let docs=await searchArchive(makeQuery(clean));
-  if(!docs.length&&clean){$('musicStatus').textContent='No exact match. Looking for popular reusable music…';docs=await searchArchive('mediatype:audio');}
-  const unique=[...new Map(docs.filter(x=>x.identifier).map(x=>[x.identifier,x])).values()].slice(0,45);
+  const clean=String(term||'').trim().replace(/[\\\\/:()[\\]{}"]/g,' ').replace(/\\s+/g,' ').slice(0,50);
+  const qs=clean?[
+   'mediatype:audio AND (title:('+clean+') OR creator:('+clean+'))',
+   'mediatype:audio AND title:('+clean+')'
+  ]:['mediatype:audio AND licenseurl:*creativecommons.org*','mediatype:audio'];
+  let docs=[];
+  for(const q of qs){const u='https://archive.org/advancedsearch.php?q='+encodeURIComponent(q)+'&fl[]=identifier&fl[]=title&fl[]=creator&fl[]=licenseurl&sort[]=downloads+desc&rows=60&page=1&output=json';const res=await fetch(u);if(!res.ok)continue;const j=await res.json();docs.push(...(j.response?.docs||[]));if(docs.length>=25)break;}
+  const unique=[...new Map(docs.filter(d=>d.identifier).map(d=>[d.identifier,d])).values()].slice(0,50);
   const detailed=await Promise.all(unique.map(async d=>{try{
    const res=await fetch('https://archive.org/metadata/'+encodeURIComponent(d.identifier));if(!res.ok)return null;const meta=await res.json();
-   const lic=String(meta.metadata?.licenseurl||'').toLowerCase();
-   if(!(lic.includes('creativecommons.org/publicdomain/zero')||lic.includes('creativecommons.org/licenses/by/4.0')||lic.includes('creativecommons.org/licenses/by/3.0')))return null;
-   const files=(meta.files||[]).filter(f=>/\\.mp3$/i.test(f.name||'')&&Number(f.size||0)>100000&&Number(f.size||0)<150000000).sort((a,b)=>Number(b.size||0)-Number(a.size||0));
-   if(!files.length)return null;
-   const f=files[0];return {id:d.identifier,title:meta.metadata?.title||d.title||d.identifier,artist:meta.metadata?.creator||d.creator||'Unknown artist',license:lic,url:'https://archive.org/download/'+encodeURIComponent(d.identifier)+'/'+f.name.split('/').map(encodeURIComponent).join('/'),duration:f.length?fmt(Number(f.length)):'Full track',page:'https://archive.org/details/'+encodeURIComponent(d.identifier)};
+   const lic=String(meta.metadata?.licenseurl||meta.metadata?.license||d.licenseurl||'').toLowerCase();
+   const isReusable=lic.includes('creativecommons.org/publicdomain/zero')||(/creativecommons.org\\/licenses\\/(by|by-sa)\\//.test(lic)&&!lic.includes('-nc')&&!lic.includes('-nd'));
+   if(!isReusable)return null;
+   const files=(meta.files||[]).filter(f=>/\\.(mp3|ogg|oga|m4a)$/i.test(f.name||'')&&Number(f.size||0)>100000&&Number(f.size||0)<180000000).sort((a,b)=>Number(b.size||0)-Number(a.size||0));
+   if(!files.length)return null;const f=files[0];
+   return {id:d.identifier,title:meta.metadata?.title||d.title||d.identifier,artist:meta.metadata?.creator||d.creator||'Unknown artist',license:lic,url:'https://archive.org/download/'+encodeURIComponent(d.identifier)+'/'+f.name.split('/').map(encodeURIComponent).join('/'),duration:f.length?fmt(Number(f.length)):'Full track',page:'https://archive.org/details/'+encodeURIComponent(d.identifier)};
   }catch(e){return null}}));
   musicItems=detailed.filter(Boolean);
-  if(!musicItems.length){musicList.innerHTML='<div class="musicempty">No reusable full-length MP3 tracks were found. Try English keywords like music, instrumental, piano or ambient.</div>';$('musicStatus').textContent='Only tracks with verified CC0 / CC BY licences are shown. Hindi film songs are usually copyrighted.';return}
-  renderOnlineMusic();$('musicStatus').textContent=musicItems.length+' full-length MP3 tracks · CC0 / CC BY licence. Open track details to review its licence before use.';
- }catch(e){musicList.innerHTML='<div class="musicempty">Online library could not load. Check your internet connection and try again.</div>';$('musicStatus').textContent='Search error: '+e.message;}
+  if(!musicItems.length){musicList.innerHTML='<div class="musicempty">इस खोज में verified licence वाला playable full track नहीं मिला। दूसरे शब्द जैसे instrumental, piano, ambient या relaxing आज़माएँ।</div>';$('musicStatus').textContent='Archive.org से खोज हुई, लेकिन इस समय matching licensed audio उपलब्ध नहीं मिला।';return}
+  renderOnlineMusic();$('musicStatus').textContent=musicItems.length+' full tracks found · verified CC0 / CC BY / CC BY-SA licences. Track page पर licence जरूर देखें.';
+ }catch(e){musicList.innerHTML='<div class="musicempty">Online catalogue अभी नहीं खुल पाया। Internet connection जाँचकर दोबारा कोशिश करें।</div>';$('musicStatus').textContent='Catalogue error: '+e.message;}
  finally{btn.disabled=false;}
 }
 function playOnlineMusic(i){const m=musicItems[i];if(!m)return;activeMusic=m;musicAudio.pause();musicAudio.src=m.url;musicAudio.crossOrigin='anonymous';musicAudio.currentTime=0;musicAudio.play().then(()=>$('musicStatus').textContent='Now playing full track: '+m.title).catch(()=>$('musicStatus').textContent='Playback blocked. Tap PLAY again.');}
