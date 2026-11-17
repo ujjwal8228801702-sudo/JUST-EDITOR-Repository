@@ -132,6 +132,85 @@ body{background:radial-gradient(ellipse at 50% -20%,#202343 0,#090c16 48%,#07091
 @media(max-width:520px){.inlineTrim{grid-template-columns:1fr 1fr}.inlineTrim button{grid-column:1/-1}}
 @media(max-width:720px){.timeline{padding:11px}.timelineActions{gap:6px}.tladd{padding:9px 8px;font-size:9px}.trackrow{gap:7px}.trackname{width:48px;font-size:8px}.track{min-width:0}.timelineScrub{gap:7px}}
 
+
+/* VISUAL REDESIGN — vivid creator workstation */
+:root{--bg:#080812;--panel:#111322;--panel2:#1a1d32;--line:#30304d;--purple:#a78bfa;--cyan:#5ee7f5;--pink:#f472b6}
+body{background:radial-gradient(ellipse at 12% 0%,#30205b 0,transparent 34%),radial-gradient(ellipse at 95% 15%,#123e56 0,transparent 28%),#080812;color:#f8f7ff}
+.top{height:72px;background:#0b0b18eF;border-bottom:1px solid #42365e;box-shadow:0 8px 35px #0008}
+.brand{font-size:23px;letter-spacing:3px;text-shadow:0 0 24px #a78bfa55}.brand b{background:linear-gradient(90deg,#c084fc,#60a5fa,#5ee7f5,#f472b6);background-clip:text;-webkit-background-clip:text;color:transparent}
+.pill{background:#17172a;border-color:#50416e;color:#c9b9ff}
+.primary{background:linear-gradient(105deg,#7c3aed,#db2777 58%,#2563eb);border:1px solid #c4a5fd;padding:12px 19px;letter-spacing:.8px;box-shadow:0 0 24px #9333ea55}
+.wrap{max-width:1480px}
+.welcome{padding:16px 20px;margin:12px 0 18px;border:1px solid #41345f;border-radius:16px;background:linear-gradient(110deg,#211538dd,#111a2ddd 65%,#102b39dd);box-shadow:inset 0 1px #ffffff12,0 12px 35px #0005}
+.tag{color:#e0a7ff;text-shadow:0 0 15px #b56aff88}
+.welcome h1{font-size:clamp(25px,3vw,36px);background:linear-gradient(90deg,#fff,#d9c7ff 48%,#79e8f7);background-clip:text;-webkit-background-clip:text;color:transparent}
+.welcome p{color:#b4b7d0}
+.studio{gap:16px}
+.card{background:linear-gradient(145deg,#17182b,#0e1423 80%);border:1px solid #393657;border-radius:18px;box-shadow:0 18px 50px #0007,inset 0 1px #ffffff0b}
+.preview{min-height:420px;background:radial-gradient(ellipse at 50% 45%,#35305a,#15162b 55%,#090b16 100%);padding:18px}
+.stage{border:1px solid #6752a2;border-radius:16px;background:radial-gradient(ellipse at 50% 45%,#252442,#080a14 72%);box-shadow:0 0 0 5px #a78bfa0c,0 18px 55px #000a,inset 0 0 45px #9d73ff12}
+.stage:after{content:"";position:absolute;inset:0;pointer-events:none;border:1px solid #ffffff0c;border-radius:16px;background:linear-gradient(135deg,#ffffff08,transparent 35%,#9b6cff08)}
+.empty .clap{font-size:68px;filter:drop-shadow(0 0 22px #bb83ff88)}
+.empty strong{font-size:16px;letter-spacing:4px;color:#f0eaff}
+.empty small{color:#a9a4c5}
+.previewbar{background:linear-gradient(90deg,#111426,#1b1730);border-top:1px solid #393657}
+.iconbtn{border-radius:12px;background:#20243a;border:1px solid #4b4d70;box-shadow:0 4px 12px #0005}
+.iconbtn:nth-child(2){background:linear-gradient(135deg,#8b5cf6,#d946ef);border-color:#d8b4fe;box-shadow:0 0 20px #a855f755}
+.time{color:#c9c3e6}
+.side{background:linear-gradient(160deg,#1b1930,#101827)}
+.side h3,.section h3{color:#d8c8ff}
+.import{background:linear-gradient(135deg,#30204d,#182a43);border:1px dashed #bd8aff;box-shadow:inset 0 0 30px #a855f711}
+.import label{color:#e4c7ff}
+.tool{background:linear-gradient(145deg,#24223e,#151d30);border:1px solid #454166;color:#e8e7fa;border-radius:13px;box-shadow:0 5px 14px #0004;min-height:70px}
+.tool i{filter:drop-shadow(0 0 8px #b18bff77)}
+.tool:hover{border-color:#bb8cff;background:linear-gradient(145deg,#3a2859,#1b2c45);transform:translateY(-1px)}
+.musiclib{background:linear-gradient(135deg,#17182b,#10232d);border-color:#3a5364}
+.musichead strong{color:#a8f4f2}
+.musicadd{background:linear-gradient(110deg,#493071,#214f60);border:1px solid #6b78a7;color:#fff}
+.musicitem{background:#1a2033;border-color:#39445f}
+.timelineCard{border-color:#5a4b83;box-shadow:0 0 0 1px #a78bfa18,0 18px 45px #0008}
+.timeline{background:linear-gradient(145deg,#17172b,#0c1421)}
+.timelinehead h3{font-size:13px;color:#e4d5ff;letter-spacing:1.5px}
+.timelineActions{padding:9px;background:#0b0e1b;border:1px solid #34324f;border-radius:13px}
+.tladd{background:linear-gradient(135deg,#282543,#1b2d43);border:1px solid #514a76;color:#f1eaff;border-radius:9px;box-shadow:0 3px 10px #0004}
+.tladd:first-child{background:linear-gradient(110deg,#6638a8,#315d9a);border-color:#a78bfa}
+.tladd:active{transform:scale(.97)}
+.tladd.danger{background:linear-gradient(110deg,#51243c,#382037);border-color:#9c4b72;color:#ffc1d8}
+.ruler{border-bottom:1px solid #3b3558;color:#a9a2c9}
+.trackrow{padding:3px 0}
+.trackname{width:58px;color:#b7afd8;font-size:10px;letter-spacing:1px}
+.track{border-radius:10px;min-height:43px;background:linear-gradient(100deg,#6236a4,#315b9a 55%,#235b72);border:1px solid #9a79d5;box-shadow:inset 0 1px #ffffff20,0 4px 12px #0004}
+.track.audio{background:linear-gradient(90deg,#116b70,#245a8c);border-color:#42b8bf}
+#overlayTrack{background:linear-gradient(90deg,#8a3f9e,#464c9c)!important;border-color:#ce83e7!important}
+#musicTrack{background:linear-gradient(90deg,#147b61,#286a83)!important;border-color:#5bd5a5!important}
+#textTrack{background:linear-gradient(90deg,#8c3e7c,#5742a0)!important;border-color:#d18bd6!important}
+#fxTrack{background:linear-gradient(90deg,#9a5928,#78522f)!important;border-color:#e2aa64!important}
+.timelineClip{background:linear-gradient(110deg,#8149c9,#3f73b9);border-color:#c3a1ff;box-shadow:inset 0 1px #ffffff30}
+.timelineClip.active{outline:2px solid #fff;box-shadow:0 0 0 4px #a78bfa55,0 0 20px #a78bfa66}
+.timelineScrub{background:linear-gradient(90deg,#15162a,#102536);border-color:#49436b}
+.timelineScrub input,.field input[type=range]{accent-color:#c084fc}
+.inlineTrim{background:#17152a;border-color:#68558e}
+.controls{background:linear-gradient(135deg,#15172a,#101b2b)}
+.field input[type=text],.field select{border-color:#51486d;background:#0b1020}
+.secondary{background:linear-gradient(110deg,#34254f,#1b3c51);border:1px solid #65558d}
+.status{color:#e2b7ff}
+.bottom{padding:25px 12px;color:#9b8bb8;font-weight:800;letter-spacing:2px}
+.bottom .ujjwal{font-size:19px;background:linear-gradient(90deg,#ff5c8a,#ffc857,#66e3a6,#56b9ff,#bb83ff);background-clip:text;-webkit-background-clip:text;color:transparent;text-shadow:0 0 18px #a78bfa55}
+@media(max-width:720px){
+ .top{height:64px}.brand{font-size:19px;letter-spacing:2px}
+ .welcome{padding:13px 14px;margin:9px 0 13px}
+ .preview{min-height:330px;padding:10px}
+ .stage{height:305px;border-radius:13px}
+ .timeline{padding:12px}
+ .timelineActions{gap:6px;padding:7px}
+ .tladd{padding:9px 9px;font-size:9px}
+ .track{height:43px;min-height:43px;padding:6px;font-size:10px}
+ .track.audio{height:32px;min-height:32px}
+ .trackname{width:49px;font-size:8px}
+ .tool{min-height:64px;padding:10px 2px}
+ .bottom{padding:20px 8px}
+}
+
 </style>
 </head>
 <body>
@@ -152,7 +231,7 @@ body{background:radial-gradient(ellipse at 50% -20%,#202343 0,#090c16 48%,#07091
 </div>
 
 <section class="card section"><div class="timeline"><h3>ADJUSTMENT PANEL</h3><div class="controls" id="panel"><div class="field full"><span class="hint">Choose a tool above to adjust your video. Changes to preview are instant where supported.</span></div></div></div></section>
-<div class="bottom">JUST EDITOR · CREATE WITHOUT LIMITS</div>
+<div class="bottom">JUST EDITOR · CREATE WITHOUT LIMITS<br><span class="ujjwal">Ujjwal</span></div>
 </main>
 <script>
 (function(){
