@@ -16,6 +16,10 @@
 body{background:radial-gradient(ellipse at 50% -20%,#202343 0,#090c16 48%,#070910 100%);letter-spacing:.1px}
 .top{height:70px;padding:0 clamp(12px,3vw,30px);backdrop-filter:blur(18px);border-bottom-color:#29314a}
 .brand{font-size:21px;letter-spacing:2.5px}.brand b{background:linear-gradient(90deg,#a78bfa,#67e8f9);-webkit-background-clip:text;background-clip:text;color:transparent}
+/* Keep JUST EDITOR title centered at the very top */
+.top{position:sticky}
+.brand{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);white-space:nowrap;z-index:1;pointer-events:none}
+.topright{margin-left:auto;position:relative;z-index:2}
 .pill{border-color:#303b55;color:#b9c4dc;background:#111827}
 .primary{background:linear-gradient(115deg,#7655f6,#a855f7 55%,#4f9cfb);box-shadow:0 8px 28px #855cf455}
 .wrap{max-width:1280px;padding:clamp(12px,2vw,24px)}
