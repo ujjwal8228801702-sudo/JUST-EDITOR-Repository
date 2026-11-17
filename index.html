@@ -307,6 +307,50 @@ $('exportBtn').onclick=exportVideo;
 <style>
 #ujjwal-footer{padding:22px 12px 28px;text-align:center;color:#9ca3af;font:600 14px system-ui,sans-serif;letter-spacing:2px;border-top:1px solid rgba(255,255,255,.09);margin-top:24px}
 #ujjwal-footer span{background:linear-gradient(90deg,#ff4d6d,#ffb703,#38bdf8,#a78bfa,#34d399);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 14px rgba(56,189,248,.22)}
+
+/* Final reference-layout pass: preview and timeline form one editor column */
+.timelineCard{
+  margin:0!important;
+  border:0!important;
+  border-top:1px solid #2b3851!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  background:linear-gradient(180deg,#101725,#0d1420)!important;
+}
+.timelineCard .timeline{padding:16px 18px 18px}
+.timelinehead h3{font-size:12px;letter-spacing:1.5px;color:#e4e8f5}
+.timelineActions{display:flex;gap:7px;flex-wrap:wrap}
+.tladd{min-height:36px;white-space:nowrap;box-shadow:0 3px 10px #0003}
+.trackrow{position:relative}
+.trackname{flex:0 0 54px}
+.track{min-width:0;position:relative}
+.videoTrackArea{background:repeating-linear-gradient(90deg,#111c2c 0,#111c2c 48px,#172238 49px,#172238 50px)!important;border:1px solid #344563!important}
+#overlayTrack{background:repeating-linear-gradient(90deg,#17152a 0,#17152a 48px,#211b38 49px,#211b38 50px)!important}
+#audioTrack,#musicTrack{background:repeating-linear-gradient(90deg,#102a2b 0,#102a2b 48px,#153638 49px,#153638 50px)!important}
+#textTrack{background:repeating-linear-gradient(90deg,#261a34 0,#261a34 48px,#332044 49px,#332044 50px)!important}
+#fxTrack{background:repeating-linear-gradient(90deg,#302318 0,#302318 48px,#40301f 49px,#40301f 50px)!important}
+.timelineScrub{position:sticky;left:0}
+.timelineClipList{padding:2px 0 5px}
+.timelineTextInput{font-size:13px}
+@media(max-width:720px){
+ .studio{display:flex;flex-direction:column;gap:12px}
+ .studio>section.card{width:100%}
+ .studio>aside.side{width:100%}
+ .preview{min-height:280px;padding:10px}
+ .stage{height:260px}
+ .timelineCard .timeline{padding:12px 10px 14px}
+ .timelineActions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+ .tladd{padding:8px 4px;font-size:9px;min-width:0}
+ .trackrow{gap:6px}
+ .trackname{flex-basis:46px;font-size:8px}
+ .track{height:42px;font-size:9px;padding:5px}
+ .track.audio{height:31px}
+ .ruler{padding-left:52px}
+}
+@media(min-width:721px){
+ .studio>section.card{min-width:0}
+ .studio>aside.side{min-width:0}
+}
 </style>
 <footer id="ujjwal-footer">Made with care by <span>Ujjwal</span></footer>
 </body>
