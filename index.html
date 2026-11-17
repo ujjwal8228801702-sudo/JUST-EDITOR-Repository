@@ -457,6 +457,59 @@ $('exportBtn').onclick=exportVideo;
  .studio>section.card{min-width:0}
  .studio>aside.side{min-width:0}
 }
+
+/* MOBILE SINGLE-SCREEN EDITOR — keep the workspace in the viewport */
+@media(max-width:720px){
+ html,body{height:100%;min-height:0;overflow:hidden}
+ body{overscroll-behavior:none}
+ .top{height:50px;min-height:50px;padding:0 10px}
+ .brand{font-size:17px;letter-spacing:1px}
+ .topright{gap:5px}.topright .pill{display:none}
+ .primary{padding:8px 11px;font-size:11px}
+ .wrap{height:calc(100dvh - 50px);min-height:0;overflow:hidden;padding:0 7px 0}
+ .welcome{display:none!important}
+ .studio{height:100%;min-height:0;display:grid;grid-template-rows:minmax(125px,24dvh) minmax(0,1fr);gap:5px;overflow:hidden}
+ .studio>section.card{display:contents}
+ .preview{height:100%;min-height:0;padding:5px;border-radius:12px}
+ .stage{height:100%;min-height:0;max-height:none;aspect-ratio:auto}
+ .previewbar{height:34px;min-height:34px;padding:3px 8px;margin:0}
+ .transport{gap:5px}.iconbtn{width:28px;height:27px}
+ .time{font-size:10px}
+ .timelineCard{min-height:0;height:100%;overflow-y:auto;overscroll-behavior:contain;padding-bottom:48px}
+ .timelineCard .timeline{padding:7px 7px 55px}
+ .timelinehead{min-height:30px;margin-bottom:5px}
+ .timelinehead h3{font-size:10px;margin:0}
+ .timelinehead .hint{font-size:8px}
+ .timelineActions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin:5px 0}
+ .tladd{min-height:29px;padding:5px 2px;font-size:8px;border-radius:6px}
+ .ruler{font-size:8px;padding-top:2px;padding-bottom:2px}
+ .trackrow{gap:4px;margin:3px 0}
+ .trackname{flex:0 0 42px;font-size:7px}
+ .track{height:31px;min-height:31px;padding:3px 5px;font-size:8px}
+ .track.audio{height:25px;min-height:25px}
+ .timelineScrub{padding:4px 0;gap:5px}
+ .timelineScrub label,.timelineScrub span{font-size:8px}
+ #playhead{height:15px}
+ .inlineTrim{padding:5px;gap:4px}
+ .inlineTrim label{font-size:8px}
+ .inlineTrim input{height:14px}
+ .timelineClipList{padding:1px 0 3px}
+ .timelineTextInput{height:30px;padding:5px;font-size:10px}
+ .side{display:none!important}
+ .quick{position:fixed;z-index:20;left:7px;right:7px;bottom:3px;display:flex;flex-wrap:nowrap;gap:5px;overflow-x:auto;padding:5px;background:#111426f5;border:1px solid #424064;border-radius:10px;box-shadow:0 5px 24px #0009}
+ .quick .tool{flex:0 0 58px;min-height:38px;height:38px;padding:3px;font-size:8px}
+ .quick .tool i{font-size:13px}
+ main.wrap>section.card.section{display:none!important}
+ .bottom,#ujjwal-footer{display:none!important}
+}
+@media(max-height:650px) and (max-width:720px){
+ .studio{grid-template-rows:minmax(105px,21dvh) minmax(0,1fr)}
+ .timelineCard .timeline{padding-top:5px}
+ .track{height:27px;min-height:27px}
+ .track.audio{height:22px;min-height:22px}
+ .quick .tool{height:34px;min-height:34px}
+}
+
 </style>
 <footer id="ujjwal-footer">Made with care by <span>Ujjwal</span></footer>
 </body>
