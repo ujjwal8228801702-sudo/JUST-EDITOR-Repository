@@ -24,7 +24,7 @@
 <div class="quick">
 <button class="tool" data-tool="trim"><i>✂️</i>TRIM</button><button class="tool" data-tool="speed"><i>⚡</i>SPEED</button><button class="tool" data-tool="filter"><i>🎨</i>FILTER</button><button class="tool" data-tool="text"><i>🔤</i>TEXT</button>
 <button class="tool" data-tool="volume"><i>🔊</i>AUDIO</button><button class="tool" data-tool="ratio"><i>▣</i>RATIO</button><button class="tool" data-tool="rotate"><i>⟳</i>ROTATE</button><button class="tool" data-tool="quality"><i>💎</i>EXPORT</button>
-</div><div class="musiclib"><div class="musichead"><strong>🎵 MUSIC LIBRARY</strong><label class="musicadd" for="musicFiles">＋ ADD MUSIC</label><input id="musicFiles" type="file" accept="audio/*" multiple></div><div class="musiclist" id="musicList"><div class="musicempty">Your music library is empty. Tap ADD MUSIC to choose MP3 or audio files from your phone.</div></div><div class="hint" id="musicStatus">Choose a song to preview it.</div></div><div class="status" id="status">Ready when you are.</div><p class="hint">Tip: For best results, use a source video with the resolution and frame rate you want to keep.</p></aside>
+</div><div class="musiclib"><div class="musichead"><strong>🎵 ONLINE MUSIC LIBRARY</strong><button class="musicadd" id="loadMusic">↻ TRENDING</button></div><div style="display:flex;gap:6px;margin:8px 0"><input id="musicSearch" type="search" placeholder="Search royalty-free music..." style="display:block;min-width:0;flex:1;background:#0d0f18;color:white;border:1px solid #34394e;border-radius:8px;padding:9px;font-size:11px"><button class="musicadd" id="searchMusic">SEARCH</button></div><div class="musiclist" id="musicList"><div class="musicempty">Tap TRENDING to load full-length Creative Commons / CC0 tracks, or search by song or artist. Tracks are provided by Internet Archive.</div></div><div class="hint" id="musicStatus">Full tracks with reuse-friendly licences. Check each track's licence before publishing.</div></div><div class="status" id="status">Ready when you are.</div><p class="hint">Tip: For best results, use a source video with the resolution and frame rate you want to keep.</p></aside>
 </div>
 <section class="card section"><div class="timeline"><div class="timelinehead"><h3>✦ MULTI-TRACK TIMELINE</h3><span class="time" id="duration">00:00</span></div><div class="ruler"><span>00:00</span><span>00:05</span><span>00:10</span><span>00:15</span><span>00:20</span></div><div class="trackrow"><span class="trackname">VIDEO</span><div class="track" id="videoTrack">Import a video to begin</div></div><div class="trackrow"><span class="trackname">AUDIO</span><div class="track audio" id="audioTrack">Original video audio</div></div></div></section>
 <section class="card section"><div class="timeline"><h3>ADJUSTMENT PANEL</h3><div class="controls" id="panel"><div class="field full"><span class="hint">Choose a tool above to adjust your video. Changes to preview are instant where supported.</span></div></div></div></section>
@@ -39,11 +39,40 @@ function status(s){$('status').textContent=s}
 function clock(){$('clock').textContent=fmt(v.currentTime)+' / '+fmt(v.duration);$('duration').textContent=fmt(v.duration)}
 function load(f){if(!f)return;if(url)URL.revokeObjectURL(url);url=URL.createObjectURL(f);v.src=url;v.style.display='block';$('empty').style.display='none';$('videoTrack').textContent=f.name;$('audioTrack').textContent='Original audio · '+f.name;v.onloadedmetadata=()=>{trimStart=0;trimEnd=v.duration;clock();status('Video imported successfully.')}}
 media.addEventListener('change',()=>load(media.files[0]));
-const musicFiles=$('musicFiles');
-function drawMusic(){const list=$('musicList');if(!musicItems.length){list.innerHTML='<div class="musicempty">Your music library is empty. Tap ADD MUSIC to choose MP3 or audio files from your phone.</div>';return}list.innerHTML=musicItems.map((m,i)=>'<div class="musicitem"><span>🎵</span><span class="musicname">'+m.name.replace(/[&<>"]/g,'')+'</span><button data-music-play="'+i+'">▶ PREVIEW</button><button data-music-add="'+i+'">ADD</button></div>').join('');list.querySelectorAll('[data-music-play]').forEach(b=>b.onclick=()=>playMusic(+b.dataset.musicPlay));list.querySelectorAll('[data-music-add]').forEach(b=>b.onclick=()=>{const m=musicItems[+b.dataset.musicAdd];activeMusic=m;musicAudio.src=m.url;musicAudio.currentTime=0;musicAudio.play().then(()=>$('musicStatus').textContent='Now playing: '+m.name+' · Background music preview').catch(()=>$('musicStatus').textContent='Tap PREVIEW to play this track.');$('audioTrack').textContent='🎵 '+m.name+' · preview'});}
-function playMusic(i){const m=musicItems[i];activeMusic=m;musicAudio.pause();musicAudio.src=m.url;musicAudio.currentTime=0;musicAudio.play().then(()=>$('musicStatus').textContent='Playing preview: '+m.name).catch(()=>$('musicStatus').textContent='Browser could not play this audio file.');}
-musicFiles.addEventListener('change',()=>{Array.from(musicFiles.files||[]).forEach(file=>{if(file.type.startsWith('audio/'))musicItems.push({name:file.name,url:URL.createObjectURL(file)});});drawMusic();$('musicStatus').textContent=musicItems.length+' audio file(s) in your library.';musicFiles.value='';});
-
+const musicList=$('musicList');
+function esc(s){return String(s||'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+function renderOnlineMusic(){if(!musicItems.length){musicList.innerHTML='<div class="musicempty">No tracks found. Try another search.</div>';return}
+musicList.innerHTML=musicItems.map((m,i)=>'<div class="musicitem"><span>🎵</span><span class="musicname" title="'+esc(m.title)+'">'+esc(m.title)+'<small style="display:block;color:#8991a7;margin-top:3px">'+esc(m.artist||'Unknown artist')+' · '+esc(m.duration||'Full track')+'</small></span><button data-online-play="'+i+'">▶ PLAY</button><button data-online-add="'+i+'">ADD</button></div>').join('');
+musicList.querySelectorAll('[data-online-play]').forEach(b=>b.onclick=()=>playOnlineMusic(+b.dataset.onlinePlay));
+musicList.querySelectorAll('[data-online-add]').forEach(b=>b.onclick=()=>selectOnlineMusic(+b.dataset.onlineAdd));}
+async function searchOnlineMusic(term=''){const btn=$('loadMusic');btn.disabled=true;$('musicStatus').textContent='Searching full-length licensed tracks online…';musicList.innerHTML='<div class="musicempty">Loading music library…</div>';
+try{
+ const clean=String(term||'').trim().replace(/[\\/:()[\]{}"]/g,' ').replace(/\s+/g,' ').slice(0,60);
+ const queries=clean?[
+  'mediatype:audio AND licenseurl:http*creativecommons.org/publicdomain/zero* AND (title:('+clean+') OR creator:('+clean+'))',
+  'mediatype:audio AND licenseurl:http*creativecommons.org/licenses/by/4* AND (title:('+clean+') OR creator:('+clean+'))'
+ ]:[
+  'mediatype:audio AND licenseurl:http*creativecommons.org/publicdomain/zero*',
+  'mediatype:audio AND licenseurl:http*creativecommons.org/licenses/by/4*'
+ ];
+ const batches=await Promise.all(queries.map(q=>fetch('https://archive.org/advancedsearch.php?q='+encodeURIComponent(q)+'&fl[]=identifier&fl[]=title&fl[]=creator&fl[]=licenseurl&sort[]=downloads+desc&rows=12&page=1&output=json').then(x=>{if(!x.ok)throw Error('Search unavailable');return x.json()})));
+ const docs=batches.flatMap(x=>x.response?.docs||[]);
+ const unique=[...new Map(docs.map(x=>[x.identifier,x])).values()].slice(0,16);
+ if(!unique.length)throw Error('No tracks found');
+ const detailed=await Promise.all(unique.map(async d=>{try{const res=await fetch('https://archive.org/metadata/'+encodeURIComponent(d.identifier));const meta=await res.json();const lic=String(meta.metadata?.licenseurl||d.licenseurl||'');if(!(lic.includes('/publicdomain/zero/')||lic.includes('/licenses/by/4.')))return null;const files=(meta.files||[]).filter(f=>/\.mp3$/i.test(f.name||'')&&Number(f.size||0)>100000&&Number(f.size||0)<150000000).sort((a,b)=>Number(b.size||0)-Number(a.size||0));if(!files.length)return null;const f=files[0];return {id:d.identifier,title:meta.metadata?.title||d.title||d.identifier,artist:meta.metadata?.creator||d.creator||'Unknown artist',license:lic,url:'https://archive.org/download/'+encodeURIComponent(d.identifier)+'/'+f.name.split('/').map(encodeURIComponent).join('/'),duration:f.length?fmt(Number(f.length)):'Full track',page:'https://archive.org/details/'+encodeURIComponent(d.identifier)};}catch(e){return null}}));
+ musicItems=detailed.filter(Boolean);
+ if(!musicItems.length){musicList.innerHTML='<div class="musicempty">No playable MP3 tracks found for this search. Try a different keyword.</div>';$('musicStatus').textContent='Try another search term.';return}
+ renderOnlineMusic();$('musicStatus').textContent=musicItems.length+' full tracks found · Internet Archive · CC0 / CC BY licences. Check licence details before commercial use.';
+}catch(e){musicList.innerHTML='<div class="musicempty">Online library could not load. Check your internet connection and try again.</div>';$('musicStatus').textContent='Music search error: '+e.message;}
+finally{btn.disabled=false;}}
+function playOnlineMusic(i){const m=musicItems[i];if(!m)return;activeMusic=m;musicAudio.pause();musicAudio.src=m.url;musicAudio.crossOrigin='anonymous';musicAudio.currentTime=0;musicAudio.play().then(()=>$('musicStatus').textContent='Now playing full track: '+m.title).catch(()=>$('musicStatus').textContent='Playback blocked. Tap PLAY again.');}
+function selectOnlineMusic(i){const m=musicItems[i];if(!m)return;activeMusic=m;musicAudio.pause();musicAudio.src=m.url;musicAudio.crossOrigin='anonymous';$('audioTrack').textContent='🎵 '+m.title+' · online track';$('musicStatus').textContent='Added to audio timeline: '+m.title+'. Press video Play to preview with your clip.';}
+$('loadMusic').onclick=()=>searchOnlineMusic('');
+$('searchMusic').onclick=()=>searchOnlineMusic($('musicSearch').value);
+$('musicSearch').addEventListener('keydown',e=>{if(e.key==='Enter')searchOnlineMusic($('musicSearch').value)});
+v.addEventListener('play',()=>{if(activeMusic&&musicAudio.src){if(musicAudio.ended)musicAudio.currentTime=0;musicAudio.play().catch(()=>{});}});
+v.addEventListener('pause',()=>musicAudio.pause());
+v.addEventListener('ended',()=>musicAudio.pause());
 $('play').onclick=()=>{if(!v.src)return status('Import a video first.');if(v.paused){if(v.currentTime>=trimEnd||v.currentTime<trimStart)v.currentTime=trimStart;v.play();$('play').textContent='Ⅱ'}else{v.pause();$('play').textContent='▶'}};
 $('stop').onclick=()=>{v.pause();if(v.src)v.currentTime=trimStart;$('play').textContent='▶'};
 $('back').onclick=()=>{if(v.src)v.currentTime=trimStart};
