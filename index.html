@@ -80,7 +80,7 @@ body{background:radial-gradient(ellipse at 50% -20%,#202343 0,#090c16 48%,#07091
 <script>
 (function(){
 const $=id=>document.getElementById(id),v=$('video'),media=$('media'),panel=$('panel');
-let url='',overlayUrl='',localAudioUrl='',musicItems=[],activeMusic=null,musicAudio=new Audio(),overlay=$('overlayVideo'),musicLocal=new Audio(),trimStart=0,trimEnd=0,speed=1,rotation=0,filter='none',volume=1,title='',recorder=null,raf=0;
+let sharedAudioContext=null,baseAudioSource=null,localAudioSource=null,url='',overlayUrl='',localAudioUrl='',musicItems=[],activeMusic=null,musicAudio=new Audio(),overlay=$('overlayVideo'),musicLocal=new Audio(),trimStart=0,trimEnd=0,speed=1,rotation=0,filter='none',volume=1,title='',recorder=null,raf=0;
 const fmt=n=>{n=Math.max(0,Math.floor(n||0));return String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0')};
 function status(s){$('status').textContent=s}
 function clock(){$('clock').textContent=fmt(v.currentTime)+' / '+fmt(v.duration);$('duration').textContent=fmt(v.duration)}
@@ -179,16 +179,16 @@ async function exportVideo(){
  const ctx=canvas.getContext('2d'),fps=+(document.getElementById('fps')?.value||30),stream=canvas.captureStream(fps),chunks=[];
  let audioCtx=null,dest=null,baseSource=null,musicSource=null;
  try{
-  audioCtx=new (window.AudioContext||window.webkitAudioContext)();dest=audioCtx.createMediaStreamDestination();
-  baseSource=audioCtx.createMediaElementSource(v);baseSource.connect(dest);baseSource.connect(audioCtx.destination);
-  if(localAudioUrl){musicSource=audioCtx.createMediaElementSource(musicLocal);musicSource.connect(dest);musicSource.connect(audioCtx.destination);}
+  audioCtx=sharedAudioContext||(sharedAudioContext=new (window.AudioContext||window.webkitAudioContext)());dest=audioCtx.createMediaStreamDestination();
+  if(!baseAudioSource){baseAudioSource=audioCtx.createMediaElementSource(v);baseAudioSource.connect(audioCtx.destination);}baseAudioSource.connect(dest);
+  if(localAudioUrl){if(!localAudioSource){localAudioSource=audioCtx.createMediaElementSource(musicLocal);localAudioSource.connect(audioCtx.destination);}localAudioSource.connect(dest);}
   dest.stream.getAudioTracks().forEach(t=>stream.addTrack(t));await audioCtx.resume();
  }catch(e){status('Audio mixing setup nahi hua: '+e.message);stream.getTracks().forEach(t=>t.stop());btn.disabled=false;btn.textContent='EXPORT ↗';return}
  const mime=['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'].find(x=>MediaRecorder.isTypeSupported(x));
  if(!mime){stream.getTracks().forEach(t=>t.stop());btn.disabled=false;btn.textContent='EXPORT ↗';status('WebM recorder supported nahi hai.');return}
  let rec;try{rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:8000000})}catch(e){stream.getTracks().forEach(t=>t.stop());btn.disabled=false;btn.textContent='EXPORT ↗';status('Recorder start nahi hua.');return}
  let stopped=false,rafId=0;
- function finish(){if(stopped)return;stopped=true;if(rafId)cancelAnimationFrame(rafId);stream.getTracks().forEach(t=>t.stop());try{audioCtx.close()}catch(e){}btn.disabled=false;btn.textContent='EXPORT ↗'}
+ function finish(){if(stopped)return;stopped=true;if(rafId)cancelAnimationFrame(rafId);stream.getTracks().forEach(t=>t.stop());try{if(baseAudioSource)baseAudioSource.disconnect(dest);if(localAudioSource)localAudioSource.disconnect(dest)}catch(e){}btn.disabled=false;btn.textContent='EXPORT ↗'}
  rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
  rec.onerror=()=>{finish();status('Export fail hua. Chhota video try karein.')};
  rec.onstop=async()=>{
