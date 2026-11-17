@@ -62,7 +62,7 @@ if(tool==='volume')$('volumeRange').oninput=e=>{volume=+e.target.value;v.volume=
 if(tool==='ratio')$('ratioSelect').onchange=e=>{$('stage').style.aspectRatio=e.target.value;$('stage').style.height=e.target.value==='auto'?'290px':'auto';status('Preview ratio changed.')};
 if(tool==='rotate'){$('rotateBtn').onclick=()=>{rotation=(rotation+90)%360;v.style.transform='rotate('+rotation+'deg)'};$('resetRotate').onclick=()=>{rotation=0;v.style.transform='none'}}
 }
-document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>show(b.dataset.tool));
+document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>{show(b.dataset.tool);$('panel').scrollIntoView({behavior:'smooth',block:'center'});});
 function exportVideo(){
 if(!v.src){status('Import a video before exporting.');return}
 if(!window.MediaRecorder||!HTMLCanvasElement.prototype.captureStream){status('This browser does not support video export. Try Chrome.');return}
