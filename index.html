@@ -63,23 +63,28 @@ if(tool==='ratio')$('ratioSelect').onchange=e=>{$('stage').style.aspectRatio=e.t
 if(tool==='rotate'){$('rotateBtn').onclick=()=>{rotation=(rotation+90)%360;v.style.transform='rotate('+rotation+'deg)'};$('resetRotate').onclick=()=>{rotation=0;v.style.transform='none'}}
 }
 document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>{show(b.dataset.tool);$('panel').scrollIntoView({behavior:'smooth',block:'center'});});
-function exportVideo(){
-if(!v.src){status('Import a video before exporting.');return}
-if(!window.MediaRecorder||!HTMLCanvasElement.prototype.captureStream){status('This browser does not support video export. Try Chrome.');return}
-const canvas=document.createElement('canvas'),max=1920,scale=Math.min(1,max/Math.max(v.videoWidth,v.videoHeight));canvas.width=Math.max(2,Math.floor(v.videoWidth*scale));canvas.height=Math.max(2,Math.floor(v.videoHeight*scale));const ctx=canvas.getContext('2d');
-const fps=+$((document.getElementById('fps'))||{value:30}).value||30;
-const stream=canvas.captureStream(fps);let audio=null;try{audio=v.captureStream();audio.getAudioTracks().forEach(t=>stream.addTrack(t))}catch(e){}
-const mime=['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'].find(x=>MediaRecorder.isTypeSupported(x));if(!mime){status('WebM export is not supported on this browser.');return}
-const chunks=[];try{recorder=new MediaRecorder(stream,{mimeType:mime})}catch(e){status('Could not start export on this device.');return}
-$('exportBtn').disabled=true;$('exportBtn').textContent='RECORDING…';status('Export recording started. Keep this tab open.');
-recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
-recorder.onerror=()=>{status('Export failed. Try a shorter clip.');finishButton()};
-recorder.onstop=()=>{const blob=new Blob(chunks,{type:mime}),link=document.createElement('a'),out=URL.createObjectURL(blob);link.href=out;link.download='JUST-EDITOR-VIDEO.webm';link.click();setTimeout(()=>URL.revokeObjectURL(out),60000);stream.getTracks().forEach(t=>t.stop());status('Export complete. Saved as JUST-EDITOR-VIDEO.webm');finishButton()};
-function finishButton(){$('exportBtn').disabled=false;$('exportBtn').textContent='EXPORT ↗';v.onseeked=null;v.onended=null}
-function draw(){if(v.readyState>=2){ctx.save();ctx.clearRect(0,0,canvas.width,canvas.height);ctx.translate(canvas.width/2,canvas.height/2);ctx.rotate(rotation*Math.PI/180);ctx.filter=filter;let w=canvas.width,h=canvas.height;if(rotation%180){w=canvas.height;h=canvas.width}ctx.drawImage(v,-w/2,-h/2,w,h);ctx.filter='none';if(title){ctx.font='bold '+Math.max(24,canvas.width*.045)+'px Arial';ctx.textAlign='center';ctx.fillStyle='white';ctx.shadowColor='black';ctx.shadowBlur=6;ctx.fillText(title,0,0,canvas.width*.9)}ctx.restore()}if(!v.paused&&!v.ended&&v.currentTime<trimEnd)requestAnimationFrame(draw);else if(recorder&&recorder.state==='recording')recorder.stop()}
-v.pause();v.currentTime=trimStart;v.onseeked=()=>{v.onseeked=null;v.playbackRate=speed;v.volume=volume;recorder.start();v.play().then(draw).catch(()=>{if(recorder.state==='recording')recorder.stop();status('Could not play this video for export.')})};
-}
-$('exportBtn').onclick=exportVideo;
+async function exportVideo(){
+if(!v.src||!Number.isFinite(v.duration)){status('Pehle video import hone dein.');return}
+if(!window.MediaRecorder||!HTMLCanvasElement.prototype.captureStream){status('Is browser mein video export supported nahi hai. Chrome update karke try karein.');return}
+if(v.readyState<2){status('Video abhi load ho raha hai. Thodi der baad Export dabayein.');return}
+const canvas=document.createElement('canvas'),max=1280,sw=v.videoWidth||720,sh=v.videoHeight||1280,scale=Math.min(1,max/Math.max(sw,sh));
+canvas.width=Math.max(2,Math.round(sw*scale));canvas.height=Math.max(2,Math.round(sh*scale));
+const ctx=canvas.getContext('2d'),stream=canvas.captureStream(30),chunks=[];
+try{if(typeof v.captureStream==='function'){const a=v.captureStream();a.getAudioTracks().forEach(t=>stream.addTrack(t))}}catch(e){}
+const mime=['video/webm;codecs=vp8','video/webm'].find(x=>MediaRecorder.isTypeSupported(x));
+if(!mime){stream.getTracks().forEach(t=>t.stop());status('WebM export supported nahi hai.');return}
+let rec;try{rec=new MediaRecorder(stream,{mimeType:mime})}catch(e){stream.getTracks().forEach(t=>t.stop());status('Recorder start nahi hua.');return}
+$('exportBtn').disabled=true;$('exportBtn').textContent='EXPORTING…';status('Export ho raha hai. Tab khula rakhein…');
+const startAt=Math.max(0,trimStart),endAt=Math.min(v.duration,trimEnd||v.duration);
+if(endAt<=startAt){stream.getTracks().forEach(t=>t.stop());$('exportBtn').disabled=false;$('exportBtn').textContent='EXPORT ↗';status('Trim range sahi nahi hai.');return}
+let stopped=false,rafId=0;
+function finish(){if(stopped)return;stopped=true;if(rafId)cancelAnimationFrame(rafId);stream.getTracks().forEach(t=>t.stop());$('exportBtn').disabled=false;$('exportBtn').textContent='EXPORT ↗'}
+rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
+rec.onerror=()=>{status('Export fail hua. Chhota video try karein.');finish()};
+rec.onstop=()=>{finish();if(!chunks.length){status('Video file nahi bani. Chrome mein try karein.');return}const blob=new Blob(chunks,{type:mime}),out=URL.createObjectURL(blob),a=document.createElement('a');a.href=out;a.download='JUST-EDITOR-VIDEO.webm';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(out),120000);status('Export complete! Downloads folder mein JUST-EDITOR-VIDEO.webm check karein.')};
+function render(){if(stopped)return;if(v.readyState>=2){ctx.save();ctx.clearRect(0,0,canvas.width,canvas.height);ctx.translate(canvas.width/2,canvas.height/2);ctx.rotate(rotation*Math.PI/180);ctx.filter=filter;let w=canvas.width,h=canvas.height;if(rotation%180){w=canvas.height;h=canvas.width}try{ctx.drawImage(v,-w/2,-h/2,w,h)}catch(e){}ctx.filter='none';if(title){ctx.font='bold '+Math.max(22,canvas.width*.045)+'px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='white';ctx.shadowColor='black';ctx.shadowBlur=6;ctx.fillText(title,0,0,canvas.width*.9)}ctx.restore()}if(v.currentTime>=endAt||v.ended){if(rec.state==='recording')rec.stop();v.pause();return}rafId=requestAnimationFrame(render)}
+try{v.pause();v.playbackRate=speed;v.volume=volume;await new Promise(resolve=>{let done=false;const fin=()=>{if(done)return;done=true;v.removeEventListener('seeked',fin);resolve()};v.addEventListener('seeked',fin,{once:true});setTimeout(fin,800);v.currentTime=startAt});rec.start(250);await v.play();render()}catch(e){if(rec.state==='recording')rec.stop();else finish();status('Export start nahi hua. Chrome mein dobara try karein.')}
+}$('exportBtn').onclick=exportVideo;
 })();
 </script>
 </body>
