@@ -52,7 +52,7 @@ async function searchOnlineMusic(term=''){
   let found=[];
   // Wikimedia Commons: open media with reusable licences and browser CORS support.
   const words=(clean||'music').replace(/[&|{}<>"]/g,' ').trim();
-  const api='https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch='+encodeURIComponent('filemime:audio '+words)+'&gsrnamespace=6&gsrlimit=30&prop=imageinfo&iiprop=url|extmetadata&format=json&origin=*';
+  const api='https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch='+encodeURIComponent(words)+'&gsrnamespace=6&gsrlimit=30&prop=imageinfo&iiprop=url|extmetadata&format=json&origin=*';
   const response=await fetch(api,{mode:'cors'});
   if(!response.ok)throw Error('Wikimedia search HTTP '+response.status);
   const data=await response.json();
